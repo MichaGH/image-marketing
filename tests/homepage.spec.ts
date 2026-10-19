@@ -78,7 +78,7 @@ test("portfolio filters dim nonmatches without rearranging the grid", async ({
   await expect(section.locator('[data-matched="true"]')).toHaveCount(11);
 });
 
-test("cinematic frame expands and process cards follow scroll", async ({
+test("cinematic sign assembles, shutters reveal the scene, and process cards follow scroll", async ({
   page,
 }) => {
   await page.goto("/");
@@ -97,15 +97,39 @@ test("cinematic frame expands and process cards follow scroll", async ({
         progress,
       );
   };
+  const cinema = page.locator("#od-napadu");
+  await cinema.evaluate((el) =>
+    window.scrollTo(0, el.getBoundingClientRect().top + scrollY - 80),
+  );
+  await expect(
+    cinema.getByRole("heading", { name: "Dáme nápadu tretí rozmer." }),
+  ).toBeVisible();
+  await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
+    "fill-opacity",
+    "0",
+  );
+  await scrollSection(1, 0.4);
+  await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
+    "fill-opacity",
+    "1",
+  );
   await scrollSection(1, 0.95);
-  await expect
-    .poll(() =>
-      page
-        .locator("[data-cinema-frame]")
-        .evaluate((el) => el.getBoundingClientRect().width),
-    )
-    .toBeCloseTo(1440, 0);
-  await expect(page.locator("[data-cinema-caption]")).toHaveCSS("opacity", "1");
+  await expect(cinema.locator("[data-cinema-details]")).toHaveCSS(
+    "opacity",
+    "1",
+  );
+  await expect(
+    cinema.getByRole("link", { name: "Pozrieť realizácie" }),
+  ).toBeInViewport();
+  for (const curtain of await cinema.locator("[data-cinema-curtain]").all()) {
+    await expect
+      .poll(() => curtain.evaluate((el) => el.getBoundingClientRect().bottom))
+      .toBeLessThan(90);
+  }
+  await expect(cinema.locator("[data-cinema-photo] img")).toHaveCSS(
+    "transform",
+    "none",
+  );
   await scrollSection(4, 0.6);
   await expect(
     page
@@ -153,6 +177,66 @@ test("about links preview the correct image and restore the default", async ({
     "opacity",
     "1",
   );
+});
+
+test("cinematic scene reverses cleanly on mobile and has a static reduced-motion view", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const cinema = page.locator("#od-napadu");
+  const scrollTo = async (progress: number) =>
+    cinema.evaluate((element, value) => {
+      const start = element.getBoundingClientRect().top + scrollY - 80;
+      window.scrollTo(
+        0,
+        start + (element.clientHeight - innerHeight + 80) * value,
+      );
+    }, progress);
+  await scrollTo(0);
+  await expect(cinema.locator("[data-cinema-details]")).toHaveCSS(
+    "visibility",
+    "hidden",
+  );
+  await scrollTo(0.98);
+  await expect(cinema.locator("[data-cinema-details]")).toHaveCSS(
+    "opacity",
+    "1",
+  );
+  const picture = cinema.locator("img");
+  await expect
+    .poll(() =>
+      picture.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(1000);
+  await scrollTo(0);
+  await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
+    "fill-opacity",
+    "0",
+  );
+  await expect(cinema.locator("[data-cinema-intro]").first()).toHaveCSS(
+    "opacity",
+    "1",
+  );
+  await expect(cinema.locator("[data-cinema-details]")).toHaveCSS(
+    "visibility",
+    "hidden",
+  );
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+    .toBe(390);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(cinema.locator("[data-cinema-drawing]")).toHaveCSS(
+    "visibility",
+    "hidden",
+  );
+  await expect(cinema.locator("[data-cinema-details]")).toHaveCSS(
+    "visibility",
+    "visible",
+  );
+  for (const line of await cinema.locator("[data-cinema-outcome-line]").all()) {
+    await expect(line).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
+  }
 });
 
 for (const width of [360, 768, 1000, 1920]) {
