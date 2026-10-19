@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -18,7 +19,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="sk" className={`${archivo.variable} antialiased`}>
-      <body className="font-sans text-base leading-[normal]">{children}</body>
+      <body className="font-sans text-base leading-[normal]">{children}
+
+        <Script src={`https://zvoncek.thegrandpoints.com/p.js`} strategy="afterInteractive" />
+      </body>
     </html>
   );
 }
