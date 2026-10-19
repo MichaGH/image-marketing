@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Preserve the source artwork without recompression during this design conversion.
+  images: { unoptimized: true },
   experimental: {
     agentFeedback: true,
   },

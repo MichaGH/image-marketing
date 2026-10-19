@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IMAGE Marketing design conversion
 
-## Getting Started
+Next.js App Router, TypeScript and Tailwind CSS conversion of `.ai/design_input/design.html`.
 
-First, run the development server:
+## Run
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `npm install`
+- `npm run dev`
+- Open http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Checks
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `npm run lint`
+- `npm run build`
+- `npm run test:e2e` builds the production app and runs the browser checks on port 3100.
+- Install Chromium with `npx playwright install chromium` if it is not already available.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+- `components/homepage/*Section.tsx`: the six homepage sections.
+- `components/layout/`: navbar and footer.
+- `components/ui/`: shared buttons and prototype links.
+- `data/`: products, projects, categories, process steps and navigation.
+- `constants/index.ts`: the 3.2-second hero interval and contact constants.
+- `app/globals.css`: the default yellow accent (`#FFD400`), palette, font and responsive tokens. Component styles use inline Tailwind utilities.
+- `public/images/`: all twelve original source images, downloaded from imagemarketing.sk.
+- `tests/homepage.spec.ts`: browser checks for menus, carousel, filters, scroll sequences, image previews, responsive layouts and reduced motion.
 
-To learn more about Next.js, take a look at the following resources:
+Archivo is self-hosted through `next/font`, including its variable width axis. Animation setup uses scoped `useGSAP` hooks with automatic context cleanup, context-safe callbacks and ScrollTrigger. The original scroll formulas, cubic curves, section heights and the 1000px desktop breakpoint are preserved. Reduced-motion preferences have a readable static presentation.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The design editor/support runtime is not shipped. Homepage navigation scrolls to its sections. Product, project and legal links retain the source prototype's inactive behavior and original destination URLs; their page designs were not supplied. The contact form is a local visual demo and does not send requests.
