@@ -102,19 +102,23 @@ export function LedMatrix({
       aria-label={label}
       className={`relative isolate ${className}`}
     >
-      {/* Aluminium profile */}
-      <div className="relative rounded-[6px] bg-[linear-gradient(180deg,#3a3a3c_0%,#1b1b1d_14%,#111113_60%,#0b0b0c_100%)] p-[max(8px,calc(var(--led-scale,6)*1.5px))] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.8),0_2px_0_rgba(255,255,255,0.06)_inset,0_-1px_0_rgba(0,0,0,0.6)_inset]">
-        {spill && (
-          <div className="pointer-events-none absolute inset-[max(8px,calc(var(--led-scale,6)*1.5px))] -z-10">
-            <canvas
-              ref={spillCanvas}
-              style={{ width: cols, height: rows }}
-              className={`${tiny} opacity-[calc(0.55*var(--led-glow,1))] [filter:blur(7px)]`}
-            />
-          </div>
-        )}
+      {/* Aluminium profile, ≈ 1.5 LEDs thick, as a % of the outer width so it never feeds back into the measured pitch. */}
+      <div
+        className="relative rounded-[6px] bg-[linear-gradient(180deg,#3a3a3c_0%,#1b1b1d_14%,#111113_60%,#0b0b0c_100%)] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.8),0_2px_0_rgba(255,255,255,0.06)_inset,0_-1px_0_rgba(0,0,0,0.6)_inset]"
+        style={{ padding: `max(8px, ${150 / cols}%)` }}
+      >
         {/* Inner bevel where the modules sit in the frame */}
-        <div className="rounded-[2px] bg-black p-px shadow-[0_0_0_1px_rgba(0,0,0,0.9),0_1px_0_1px_rgba(255,255,255,0.05)]">
+        <div className="relative rounded-[2px] bg-black p-px shadow-[0_0_0_1px_rgba(0,0,0,0.9),0_1px_0_1px_rgba(255,255,255,0.05)]">
+          {spill && (
+            // Behind the frame (root is the stacking context), aligned with the LED area.
+            <div className="pointer-events-none absolute inset-px -z-10">
+              <canvas
+                ref={spillCanvas}
+                style={{ width: cols, height: rows }}
+                className={`${tiny} opacity-[calc(0.55*var(--led-glow,1))] [filter:blur(7px)]`}
+              />
+            </div>
+          )}
           <div
             ref={area}
             className="relative overflow-hidden"
