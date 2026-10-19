@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 
-/** A drawn letterform becomes a dimensional sign, then finds its place in the world. */
+/** One continuous scene: an outlined letterform gains depth and its final yellow face. */
 export function CinematicSection() {
   const root = useRef<HTMLElement>(null);
 
@@ -21,27 +20,45 @@ export function CinematicSection() {
         ({ conditions }) => {
           const desktop = conditions?.desktop;
           const select = gsap.utils.selector(root);
-          const intro = select("[data-cinema-intro]");
+          const title = select("[data-cinema-title]");
+          const titleLines = select("[data-cinema-title-line]");
+          const newLabel = select("[data-cinema-new-label]");
+          const introCopy = select("[data-cinema-intro-copy]");
           const drawing = select("[data-cinema-drawing]");
           const planes = select("[data-sign-plane]");
           const face = select("[data-sign-face]");
           const edges = select("[data-sign-edge]");
           const glow = select("[data-sign-glow]");
           const guides = select("[data-sign-guides]");
-          const curtains = select("[data-cinema-curtain]");
-          const outcome = select("[data-cinema-outcome-line]");
           const details = select("[data-cinema-details]");
-          const header = select("[data-cinema-header]");
           const progress = select("[data-cinema-progress]");
 
           if (conditions?.reduce) {
-            gsap.set([...intro, ...drawing, ...curtains], { autoAlpha: 0 });
-            gsap.set([...outcome, ...details], {
+            gsap.set(drawing, { rotationX: 0, rotationY: 0, rotationZ: 0 });
+            gsap.set(planes[0], {
+              x: desktop ? 14 : 7,
+              y: desktop ? 16 : 8,
+              opacity: 0.55,
+            });
+            gsap.set(planes[1], {
+              x: desktop ? 7 : 3.5,
+              y: desktop ? 8 : 4,
+              opacity: 0.8,
+            });
+            gsap.set(planes[2], { x: 0, y: 0, opacity: 1 });
+            gsap.set(face, {
+              fillOpacity: 1,
+              fill: "var(--primary)",
+              stroke: "var(--primary)",
+            });
+            gsap.set(edges, { fillOpacity: 1 });
+            gsap.set(glow, { opacity: 0.28 });
+            gsap.set([...title, ...titleLines, ...newLabel], {
               autoAlpha: 1,
               y: 0,
-              yPercent: 0,
             });
-            gsap.set(header, { color: "#fff" });
+            gsap.set([...introCopy, ...guides], { autoAlpha: 0 });
+            gsap.set(details, { autoAlpha: 1, y: 0 });
             gsap.set(progress, { scaleX: 1 });
             return;
           }
@@ -66,9 +83,23 @@ export function CinematicSection() {
           });
           gsap.set(face, { fillOpacity: 0 });
           gsap.set(glow, { opacity: 0 });
-          gsap.set(outcome, { y: 0, yPercent: 112 });
-          gsap.set(details, { y: 20, autoAlpha: 0 });
+          gsap.set(newLabel, { y: 10, autoAlpha: 0 });
+          gsap.set(details, { y: 14, autoAlpha: 0 });
           gsap.set(progress, { scaleX: 0, transformOrigin: "left center" });
+
+          // The lines enter gently; the wrapper handles their later scroll-driven exit.
+          gsap.from(titleLines, {
+            y: 10,
+            autoAlpha: 0,
+            duration: 0.65,
+            stagger: 0.08,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: root.current,
+              start: "top 80%",
+              once: true,
+            },
+          });
 
           const sequence = gsap.timeline({
             defaults: { ease: "power3.inOut" },
@@ -76,19 +107,23 @@ export function CinematicSection() {
               trigger: root.current,
               start: "top 80px",
               end: "bottom bottom",
-              scrub: 0.65,
+              scrub: 0.8,
               invalidateOnRefresh: true,
             },
           });
 
           sequence
             .addLabel("drawing", 0)
-            .to(guides, { opacity: 0, duration: 1.4 }, "drawing+=0.4")
-            .to(intro, { y: -28, opacity: 0, duration: 1.1 }, "drawing+=0.85")
-            .addLabel("dimension", 1.1)
+            .to(guides, { opacity: 0, duration: 1.8 }, "drawing+=0.4")
+            .addLabel("dimension", 0.9)
+            .to(
+              title,
+              { y: -16, autoAlpha: 0, duration: 0.75 },
+              "dimension+=0.15",
+            )
             .to(
               drawing,
-              { rotationX: 0, rotationY: 0, rotationZ: 0, duration: 2.0 },
+              { rotationX: 0, rotationY: 0, rotationZ: 0, duration: 2.9 },
               "dimension",
             )
             .to(
@@ -97,7 +132,7 @@ export function CinematicSection() {
                 x: desktop ? 14 : 7,
                 y: desktop ? 16 : 8,
                 opacity: 0.55,
-                duration: 1.7,
+                duration: 2.5,
               },
               "dimension",
             )
@@ -107,55 +142,41 @@ export function CinematicSection() {
                 x: desktop ? 7 : 3.5,
                 y: desktop ? 8 : 4,
                 opacity: 0.8,
-                duration: 1.7,
+                duration: 2.5,
               },
-              "dimension+=0.12",
+              "dimension+=0.15",
             )
-            .to(planes[2], { x: 0, y: 0, duration: 1.7 }, "dimension+=0.24")
-            .to(face, { fillOpacity: 1, duration: 1.2 }, "dimension+=0.6")
-            .to(edges, { fillOpacity: 1, duration: 0.8 }, "dimension+=0.8")
+            .to(planes[2], { x: 0, y: 0, duration: 2.5 }, "dimension+=0.3")
+            .to(face, { fillOpacity: 1, duration: 1.6 }, "dimension+=0.8")
+            .to(edges, { fillOpacity: 1, duration: 1.1 }, "dimension+=1.1")
             .to(
               face,
               {
                 fill: "var(--primary)",
                 stroke: "var(--primary)",
-                duration: 0.8,
+                duration: 1.1,
               },
-              "dimension+=1.4",
+              "dimension+=2.4",
             )
-            .to(glow, { opacity: 0.35, duration: 0.8 }, "dimension+=1.6")
-            .addLabel("reality", 3.35)
-            .to(drawing, { yPercent: -8, opacity: 0, duration: 0.8 }, "reality")
+            .to(glow, { opacity: 0.28, duration: 1.1 }, "dimension+=2.5")
             .to(
-              curtains,
-              {
-                yPercent: -101,
-                duration: 1.9,
-                stagger: 0.14,
-                ease: "expo.inOut",
-              },
-              "reality+=0.15",
+              newLabel,
+              { y: 0, autoAlpha: 1, duration: 0.8, ease: "power2.out" },
+              "dimension+=2.5",
             )
-            .to(header, { color: "#fff", duration: 0.6 }, "reality+=1.35")
-            .addLabel("outcome", 5.0)
             .to(
-              outcome,
-              { yPercent: 0, duration: 1.2, stagger: 0.14, ease: "power4.out" },
-              "outcome",
+              introCopy,
+              { y: -12, autoAlpha: 0, duration: 0.65 },
+              "dimension+=2.6",
             )
+            .addLabel("settled", 4.65)
             .to(
               details,
-              {
-                y: 0,
-                autoAlpha: 1,
-                duration: 1.1,
-                stagger: 0.1,
-                ease: "power2.out",
-              },
-              "outcome+=0.45",
+              { y: 0, autoAlpha: 1, duration: 0.9, ease: "power2.out" },
+              "settled",
             )
-            // A short final hold lets the finished scene register before the portfolio arrives.
-            .to(progress, { scaleX: 1, duration: 7.6, ease: "none" }, 0);
+            // The finished sign stays in this same composition as the section scrolls away.
+            .to(progress, { scaleX: 1, duration: 6.4, ease: "none" }, 0);
         },
         root,
       );
@@ -168,41 +189,16 @@ export function CinematicSection() {
     <section
       ref={root}
       id="od-napadu"
-      aria-label="Od nápadu po realizáciu"
+      aria-label="Dáme vašej značke nový rozmer"
       data-screen-label="Cinematic — Od nápadu"
-      className="relative h-[270svh] desktop:h-[300svh] motion-reduce:h-auto"
+      className="relative h-[220svh] desktop:h-[240svh] motion-reduce:h-auto"
     >
       <div className="sticky top-20 h-[calc(100svh-80px)] min-h-[540px] motion-reduce:relative motion-reduce:top-0">
         <div
           data-cinema-stage
-          className="absolute inset-x-[clamp(16px,2.4vw,40px)] top-4 bottom-4 overflow-hidden rounded-[20px] bg-foreground"
+          className="absolute inset-x-[clamp(16px,2.4vw,40px)] top-4 bottom-4 overflow-hidden rounded-[20px] bg-surface-soft"
         >
-          <div data-cinema-photo className="absolute inset-0">
-            <Image
-              src="/images/cinematic/image-sign-dusk.png"
-              alt="Priestorové svetelné označenie IMAGE na architektonickej fasáde — vizuálny koncept"
-              fill
-              sizes="100vw"
-              className="object-cover object-[66%_center] desktop:object-center"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.2)_0%,transparent_35%,rgba(0,0,0,0.7)_100%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.35),transparent_60%)]" />
-          </div>
-
-          <div aria-hidden="true" className="absolute inset-0 grid grid-cols-3">
-            {[0, 1, 2].map((column) => (
-              <div
-                key={column}
-                data-cinema-curtain
-                className="relative -left-px h-full w-[calc(100%+2px)] bg-surface-soft will-change-transform"
-              />
-            ))}
-          </div>
-
-          <div
-            data-cinema-header
-            className="absolute inset-x-[clamp(20px,3.2vw,56px)] top-[clamp(24px,3.2vw,48px)] z-10 flex items-center justify-between gap-5 text-foreground"
-          >
+          <div className="absolute inset-x-[clamp(20px,3.2vw,56px)] top-[clamp(24px,3.2vw,48px)] z-10 flex items-center justify-between gap-5 text-foreground">
             <span className="flex items-center gap-2.5 text-[10px] font-semibold tracking-[0.12em] uppercase sm:text-xs">
               <span
                 aria-hidden="true"
@@ -222,15 +218,26 @@ export function CinematicSection() {
           </div>
 
           <div
-            data-cinema-intro
-            className="absolute top-[19%] left-[clamp(20px,3.2vw,56px)] z-10"
+            data-cinema-title
+            className="absolute inset-x-[clamp(20px,3.2vw,56px)] top-[19%] z-10 [container-type:inline-size]"
           >
-            <h2 className="text-[clamp(34px,5.2vw,84px)] leading-[0.98] font-extrabold tracking-[-0.055em] text-foreground [font-stretch:125%]">
-              Dáme nápadu
-              <br />
-              tretí rozmer<span className="text-primary">.</span>
+            <h2 className="text-[clamp(22px,8.2cqw,80px)] leading-[0.98] font-extrabold tracking-[-0.055em] text-foreground [font-stretch:125%]">
+              <span data-cinema-title-line className="block whitespace-nowrap">
+                Dáme vašej značke
+              </span>
+              <span data-cinema-title-line className="block">
+                nový rozmer<span className="text-primary">.</span>
+              </span>
             </h2>
           </div>
+
+          <p
+            data-cinema-new-label
+            aria-label="Nový IMAGE"
+            className="pointer-events-none invisible absolute inset-x-5 top-[46%] z-10 text-center text-[clamp(32px,4.4vw,64px)] leading-none font-extrabold tracking-[-0.045em] text-foreground opacity-0 [font-stretch:125%] sm:top-[39%] desktop:top-[38%]"
+          >
+            Nový
+          </p>
 
           <div
             aria-hidden="true"
@@ -303,7 +310,7 @@ export function CinematicSection() {
           </div>
 
           <div
-            data-cinema-intro
+            data-cinema-intro-copy
             className="absolute right-[clamp(20px,3.2vw,56px)] bottom-[clamp(28px,4vw,56px)] left-[clamp(20px,3.2vw,56px)] z-10 flex items-end justify-between gap-6 text-foreground"
           >
             <p className="max-w-[240px] text-sm leading-relaxed text-text-tertiary sm:max-w-[300px] sm:text-base">
@@ -319,54 +326,27 @@ export function CinematicSection() {
             </span>
           </div>
 
-          <div className="absolute inset-x-[clamp(20px,3.2vw,56px)] bottom-[clamp(28px,4vw,56px)] z-10 flex flex-col items-start justify-between gap-7 text-white desktop:flex-row desktop:items-end">
-            <div
-              role="heading"
-              aria-level={2}
-              aria-label="Z nápadu. Do reality."
-              className="text-[clamp(44px,6.3vw,108px)] leading-[0.95] font-extrabold tracking-[-0.055em] [font-stretch:125%]"
+          <div
+            data-cinema-details
+            className="invisible absolute inset-x-[clamp(20px,3.2vw,56px)] bottom-[clamp(28px,4vw,56px)] z-10 flex flex-col items-start justify-between gap-4 text-foreground opacity-0 sm:flex-row sm:items-end"
+          >
+            <p className="text-sm leading-relaxed text-text-tertiary sm:text-base">
+              Od prvého ťahu po posledný detail.
+              <br />
+              Dizajn, ktorý nezostane na papieri.
+            </p>
+            <Link
+              href="/#realizacie"
+              className="group inline-flex shrink-0 items-center gap-3 text-sm font-semibold text-foreground"
             >
-              <span className="block overflow-hidden pb-[0.08em]">
-                <span
-                  data-cinema-outcome-line
-                  aria-hidden="true"
-                  className="block [transform:translateY(112%)]"
-                >
-                  Z nápadu.
-                </span>
-              </span>
-              <span className="-mt-[0.06em] block overflow-hidden pb-[0.08em]">
-                <span
-                  data-cinema-outcome-line
-                  aria-hidden="true"
-                  className="block text-primary [transform:translateY(112%)]"
-                >
-                  Do reality.
-                </span>
-              </span>
-            </div>
-            <div
-              data-cinema-details
-              className="flex max-w-[290px] flex-col items-start gap-5 opacity-0"
-            >
-              <p className="text-sm leading-relaxed text-white/70 sm:text-base">
-                Od prvého ťahu po posledný detail.
-                <br />
-                Dizajn, ktorý nezostane na papieri.
-              </p>
-              <Link
-                href="/#realizacie"
-                className="group inline-flex items-center gap-3 text-sm font-semibold text-white"
+              Pozrieť realizácie
+              <span
+                aria-hidden="true"
+                className="flex size-8 items-center justify-center rounded-full bg-primary text-foreground transition-transform group-hover:translate-y-0.5"
               >
-                Pozrieť realizácie
-                <span
-                  aria-hidden="true"
-                  className="flex size-8 items-center justify-center rounded-full bg-primary text-foreground transition-transform group-hover:translate-y-0.5"
-                >
-                  ↓
-                </span>
-              </Link>
-            </div>
+                ↓
+              </span>
+            </Link>
           </div>
         </div>
       </div>

@@ -78,7 +78,7 @@ test("portfolio filters dim nonmatches without rearranging the grid", async ({
   await expect(section.locator('[data-matched="true"]')).toHaveCount(11);
 });
 
-test("cinematic sign assembles, shutters reveal the scene, and process cards follow scroll", async ({
+test("cinematic sign settles within the same scene and process cards follow scroll", async ({
   page,
 }) => {
   await page.goto("/");
@@ -102,13 +102,17 @@ test("cinematic sign assembles, shutters reveal the scene, and process cards fol
     window.scrollTo(0, el.getBoundingClientRect().top + scrollY - 80),
   );
   await expect(
-    cinema.getByRole("heading", { name: "Dáme nápadu tretí rozmer." }),
+    cinema.getByRole("heading", { name: /Dáme vašej značke\s*nový rozmer\./ }),
   ).toBeVisible();
   await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
     "fill-opacity",
     "0",
   );
-  await scrollSection(1, 0.4);
+  await expect(cinema.locator("[data-cinema-new-label]")).toHaveCSS(
+    "visibility",
+    "hidden",
+  );
+  await scrollSection(1, 0.62);
   await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
     "fill-opacity",
     "1",
@@ -121,14 +125,27 @@ test("cinematic sign assembles, shutters reveal the scene, and process cards fol
   await expect(
     cinema.getByRole("link", { name: "Pozrieť realizácie" }),
   ).toBeInViewport();
-  for (const curtain of await cinema.locator("[data-cinema-curtain]").all()) {
-    await expect
-      .poll(() => curtain.evaluate((el) => el.getBoundingClientRect().bottom))
-      .toBeLessThan(90);
-  }
-  await expect(cinema.locator("[data-cinema-photo] img")).toHaveCSS(
-    "transform",
-    "none",
+  await expect(cinema.locator("[data-cinema-drawing]")).toHaveCSS(
+    "opacity",
+    "1",
+  );
+  await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
+    "fill",
+    "rgb(255, 212, 0)",
+  );
+  await expect(cinema.locator("[data-cinema-title]")).toHaveCSS(
+    "visibility",
+    "hidden",
+  );
+  await expect(cinema.locator("[data-cinema-new-label]")).toHaveCSS(
+    "opacity",
+    "1",
+  );
+  await expect(cinema.locator("[data-cinema-new-label]")).toHaveText("Nový");
+  await expect(cinema.locator("img")).toHaveCount(0);
+  await expect(cinema.locator("[data-cinema-stage]")).toHaveCSS(
+    "background-color",
+    "rgb(246, 246, 246)",
   );
   await scrollSection(4, 0.6);
   await expect(
@@ -203,20 +220,27 @@ test("cinematic scene reverses cleanly on mobile and has a static reduced-motion
     "opacity",
     "1",
   );
-  const picture = cinema.locator("img");
-  await expect
-    .poll(() =>
-      picture.evaluate((image) => (image as HTMLImageElement).naturalWidth),
-    )
-    .toBeGreaterThan(1000);
+  await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
+    "fill",
+    "rgb(255, 212, 0)",
+  );
+  await expect(cinema.locator("[data-cinema-drawing]")).toHaveCSS(
+    "opacity",
+    "1",
+  );
   await scrollTo(0);
   await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
     "fill-opacity",
     "0",
   );
-  await expect(cinema.locator("[data-cinema-intro]").first()).toHaveCSS(
+  await expect(cinema.locator("[data-cinema-intro-copy]")).toHaveCSS(
     "opacity",
     "1",
+  );
+  await expect(cinema.locator("[data-cinema-title]")).toHaveCSS("opacity", "1");
+  await expect(cinema.locator("[data-cinema-new-label]")).toHaveCSS(
+    "visibility",
+    "hidden",
   );
   await expect(cinema.locator("[data-cinema-details]")).toHaveCSS(
     "visibility",
@@ -227,16 +251,17 @@ test("cinematic scene reverses cleanly on mobile and has a static reduced-motion
     .toBe(390);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(cinema.locator("[data-cinema-drawing]")).toHaveCSS(
-    "visibility",
-    "hidden",
+    "opacity",
+    "1",
+  );
+  await expect(cinema.locator("[data-sign-face]")).toHaveCSS(
+    "fill",
+    "rgb(255, 212, 0)",
   );
   await expect(cinema.locator("[data-cinema-details]")).toHaveCSS(
     "visibility",
     "visible",
   );
-  for (const line of await cinema.locator("[data-cinema-outcome-line]").all()) {
-    await expect(line).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
-  }
 });
 
 for (const width of [360, 768, 1000, 1920]) {
