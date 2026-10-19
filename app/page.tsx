@@ -4,7 +4,6 @@ import { CinematicSection } from "@/components/homepage/CinematicSection";
 import { ProjectsSection } from "@/components/homepage/ProjectsSection";
 import { AboutSection } from "@/components/homepage/AboutSection";
 import { BrandSignSection } from "@/components/homepage/BrandSignSection";
-import { ProcessSection } from "@/components/homepage/ProcessSection";
 import { ContactSection } from "@/components/homepage/ContactSection";
 import { Footer } from "@/components/layout/Footer";
 
@@ -16,9 +15,8 @@ export default function Home() {
         <HeroSection />
         <CinematicSection />
         <ProjectsSection />
-        <AboutSection />
         <BrandSignSection />
-        <ProcessSection />
+        <AboutSection />
         <ContactSection>
           <Footer />
         </ContactSection>

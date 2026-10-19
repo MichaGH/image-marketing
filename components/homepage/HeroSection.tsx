@@ -138,7 +138,7 @@ export function HeroSection() {
     <section ref={root} data-screen-label="Hero" className="page-shell py-4">
       <div className="grid grid-cols-1 gap-4 desktop:min-h-[clamp(560px,calc(100vh-112px),880px)] desktop:grid-cols-[minmax(0,1.22fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col justify-between gap-10 pt-[clamp(16px,3vh,40px)] pb-1 [container-type:inline-size]">
-          <h1 className="m-0 flex flex-col items-start gap-[0.04em] text-[clamp(36px,9.4cqw,108px)] leading-[0.94] font-extrabold tracking-[-0.045em] text-foreground [font-stretch:125%]">
+          <h1 className="mx-0 my-auto flex flex-col items-start gap-[0.04em] text-[clamp(36px,9.4cqw,108px)] leading-[0.94] font-extrabold tracking-[-0.045em] text-foreground [font-stretch:125%]">
             {["Navrhneme.", "Vyrobíme.", "Namontujeme."].map((word, i) => (
               <span
                 key={word}
